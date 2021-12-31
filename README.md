@@ -8,7 +8,7 @@ Go around uses the stackoverflow API to get the answers for the given query and 
 
 ## Installation
 
-Download the binary corresponding to your platform from releases page
+Download the binary corresponding to your platform from [releases](https://github.com/glendsoza/goaroundreleases/tag/v0.1) page
 
 ## Usage
 
