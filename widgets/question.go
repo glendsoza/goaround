@@ -18,8 +18,8 @@ func NewQuestionWidget() *QuestionWD {
 	return &QuestionWD{tview.NewList(), make(map[int]*api.Question)}
 }
 
-func (qwd *QuestionWD) Populate(doneChan chan int) {
-	result := api.Search("all go routines are asleep")
+func (qwd *QuestionWD) Populate(doneChan chan int, q string) {
+	result := api.Search(q)
 	if result.ErrorID == 400 {
 		qwd.AddItem("Invalid key/page size supplied", "", '0', nil)
 	} else {
