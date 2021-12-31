@@ -48,14 +48,13 @@ func main() {
 			}
 			return event
 		})
-		awd.SetBorder(true)
 		awd.SetWrap(true)
 		awd.SetDynamicColors(true)
 		awd.SetBorderColor(tcell.ColorSnow)
 		awd.SetToggleHighlights(true)
 		go awd.Populate(doneChan)
 		go loading.Load(app, func() {
-			app.SetRoot(awd.Render(), true)
+			app.SetRoot(awd, true)
 		}, doneChan)
 		app.SetRoot(loading, true)
 	})

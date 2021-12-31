@@ -2,12 +2,10 @@ package widgets
 
 import (
 	"bytes"
-	"fmt"
 	"goaround/api"
 	gwt "goaround/templates"
 	"goaround/utils"
 	"log"
-	"os"
 	"regexp"
 	"sort"
 	"text/template"
@@ -53,15 +51,4 @@ func (awd *AnswerWD) Populate(doneChan chan int) {
 	}
 	awd.SetText(REPLACE_MULTIPLE_NEW_LINE_REGEX.ReplaceAllString(buf.String(), "\n\n"))
 	doneChan <- 1
-}
-
-func (awd *AnswerWD) Render() *AnswerWD {
-	usingKey := "No"
-	if os.Getenv("STACKOVERFLOW_APP_KEY") != "" {
-		usingKey = "Yes"
-	}
-	awd.SetTitle(fmt.Sprintf("[red]Quota Max : %d | Quota Remaining : %d | Using Key : %s [-]",
-		api.CurrentQuota.QuotaMax,
-		api.CurrentQuota.QuotaRemaining, usingKey))
-	return awd
 }
