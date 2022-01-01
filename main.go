@@ -38,9 +38,19 @@ func main() {
 	}
 	qwd := initQuestion()
 	loading := initLoading()
+	errorHandler := func(err error) {
+		app.Stop()
+		log.Fatal(err)
+	}
 	qwd.SetSelectedFunc(func(a int, b, c string, d rune) {
+		if c == "error" {
+			return
+		}
 		doneChan := make(chan int)
-		awd := widgets.NewAnswerWidget(qwd.GetSelectedQuestion(a))
+		awd, err := widgets.NewAnswerWidget(qwd.GetSelectedQuestion(a))
+		if err != nil {
+			errorHandler(err)
+		}
 		awd.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 			if event.Key() == tcell.KeyBackspace2 || event.Key() == tcell.KeyBackspace {
 				app.SetRoot(qwd.Render(), true)
@@ -52,14 +62,14 @@ func main() {
 		awd.SetDynamicColors(true)
 		awd.SetBorderColor(tcell.ColorSnow)
 		awd.SetToggleHighlights(true)
-		go awd.Populate(doneChan)
+		go awd.Populate(doneChan, errorHandler)
 		go loading.Load(app, func() {
 			app.SetRoot(awd, true)
 		}, doneChan)
 		app.SetRoot(loading, true)
 	})
 	doneChan := make(chan int)
-	go qwd.Populate(doneChan, query)
+	go qwd.Populate(doneChan, query, errorHandler)
 	go loading.Load(app, func() {
 		app.SetRoot(qwd.Render(), true)
 	}, doneChan)

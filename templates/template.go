@@ -8,13 +8,15 @@ var AnswerTemplate = `[#90ee90]Question[-]
 
 [#90ee90]UpVotes {{ .Question.UpVoteCount }} | Asked {{ GetDateDiffInDays .Question.CreationDate }} days ago[-]
 
-[#90ee90]{{ .SeperatorString }}[-]
+[#90ee90]Link[-] [blue]https://stackoverflow.com/questions/{{ .Question.QuestionID }}[-]
 
-[#90ee90]Answers[-]
+[#90ee90]{{ .SeperatorString }}[-]
 
 {{ $save := .SeperatorString }}
 
-{{ range .Answers  }}
+{{ range $i, $e := .Answers  }}
+
+[yellow]({{ Add $i 1 }})[-] [#90ee90]Answer[-]
 
 {{ BeautifyHtmlText .Body }}
 

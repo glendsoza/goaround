@@ -29,36 +29,34 @@ func prepareRequest(url, filter string) (*http.Request, url.Values) {
 	return req, urlQuery
 }
 
-func GetAnswer(qid int) []*Answer {
+func GetAnswer(qid int) ([]*Answer, error) {
 	req, urlQuery := prepareRequest(fmt.Sprintf(STACK_OVERFLOW_ANSWER_URL, qid), "!)xh)am6dFD--YIhimaEuiQq")
 	req.URL.RawQuery = urlQuery.Encode()
 	client := http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Println(err)
-		log.Fatal("Something went wrong while querying stackexchange api")
+		return nil, err
 	}
 	var answerResult AnswerResult
 	json.NewDecoder(resp.Body).Decode(&answerResult)
 	CurrentQuota.QuotaMax = answerResult.QuotaMax
 	CurrentQuota.QuotaRemaining = answerResult.QuotaRemaining
-	return answerResult.Items
+	return answerResult.Items, nil
 }
 
-func Search(q string) *SearchResult {
+func Search(q string) (*SearchResult, error) {
 	req, urlQuery := prepareRequest(STACK_OVERFLOW_SEARCH_URL, "!6VClR6PL.AoK9*EK(Zdsdl0uY")
 	urlQuery.Add("q", q)
 	req.URL.RawQuery = urlQuery.Encode()
 	client := http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Println(err)
-		log.Fatal("Something went wrong while querying stackexchange api")
+		return nil, err
 	}
 	var searchResult SearchResult
 	json.NewDecoder(resp.Body).Decode(&searchResult)
 	CurrentQuota.QuotaMax = searchResult.QuotaMax
 	CurrentQuota.QuotaRemaining = searchResult.QuotaRemaining
-	return &searchResult
+	return &searchResult, nil
 
 }
