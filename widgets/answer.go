@@ -5,7 +5,6 @@ import (
 	"goaround/api"
 	gwt "goaround/templates"
 	"goaround/utils"
-	"log"
 	"regexp"
 	"sort"
 	"text/template"
@@ -22,32 +21,47 @@ type AnswerWD struct {
 	answerTemplate *template.Template
 }
 
-func NewAnswerWidget(question *api.Question) *AnswerWD {
-	t, _ := template.New("AnswerTemplate").Funcs(template.FuncMap{
+func NewAnswerWidget(question *api.Question) (*AnswerWD, error) {
+	t, err := template.New("AnswerTemplate").Funcs(template.FuncMap{
 		"BeautifyHtmlText":  utils.BeautifyHtmlText,
 		"GetDateDiffInDays": utils.GetDateDiffInDays,
+		"Add": func(i, j int) int {
+			return i + j
+		},
 	}).Parse(gwt.AnswerTemplate)
-	return &AnswerWD{tview.NewTextView(), question, t}
+	if err != nil {
+		return nil, err
+	}
+	return &AnswerWD{tview.NewTextView(), question, t}, nil
 }
 
-func (awd *AnswerWD) Populate(doneChan chan int) {
-	buf := &bytes.Buffer{}
-	answers, ok := answerCache[awd.question.QuestionID]
+func (awd *AnswerWD) GetAnswer(errorHandler func(error)) []*api.Answer {
+	data, ok := answerCache[awd.question.QuestionID]
 	if !ok {
-		answers = api.GetAnswer(awd.question.QuestionID)
-		sort.Slice(answers, func(i int, j int) bool {
-			return answers[i].IsAccepted
+		data, err := api.GetAnswer(awd.question.QuestionID)
+		if err != nil {
+			errorHandler(err)
+		}
+		sort.Slice(data, func(i int, j int) bool {
+			return data[i].IsAccepted
 		})
-		answerCache[awd.question.QuestionID] = answers
+		answerCache[awd.question.QuestionID] = data
+		return data
 	}
+	return data
+}
+
+func (awd *AnswerWD) Populate(doneChan chan int, errorHandler func(error)) {
+	buf := &bytes.Buffer{}
 	err := awd.answerTemplate.Execute(buf, struct {
 		Question        *api.Question
 		SeperatorString string
 		Answers         []*api.Answer
-	}{Question: awd.question, SeperatorString: utils.GenerateSeperatorString(25), Answers: answers})
+	}{Question: awd.question,
+		SeperatorString: utils.GenerateSeperatorString(25),
+		Answers:         awd.GetAnswer(errorHandler)})
 	if err != nil {
-		log.Println(err)
-		log.Fatal("Something went wrong while rendering answers")
+		errorHandler(err)
 	}
 	awd.SetText(REPLACE_MULTIPLE_NEW_LINE_REGEX.ReplaceAllString(buf.String(), "\n\n"))
 	doneChan <- 1

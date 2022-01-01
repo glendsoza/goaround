@@ -18,10 +18,13 @@ func NewQuestionWidget() *QuestionWD {
 	return &QuestionWD{tview.NewList(), make(map[int]*api.Question)}
 }
 
-func (qwd *QuestionWD) Populate(doneChan chan int, q string) {
-	result := api.Search(q)
+func (qwd *QuestionWD) Populate(doneChan chan int, q string, errorHandler func(error)) {
+	result, err := api.Search(q)
+	if err != nil {
+		errorHandler(err)
+	}
 	if result.ErrorID == 400 {
-		qwd.AddItem("Invalid key/page size supplied", "", '0', nil)
+		qwd.AddItem("Invalid key/page size supplied", "error", '0', nil)
 	} else {
 		for idx, data := range result.Items {
 			data.Title = html.UnescapeString(data.Title)
@@ -37,7 +40,7 @@ func (qwd *QuestionWD) Populate(doneChan chan int, q string) {
 }
 func (qwd *QuestionWD) Render() *QuestionWD {
 	if qwd.GetItemCount() == 0 {
-		qwd.AddItem("No Data To Display", "", '0', nil)
+		qwd.AddItem("No Data To Display", "error", '0', nil)
 	}
 	usingKey := "No"
 	if os.Getenv("STACKOVERFLOW_APP_KEY") != "" {
