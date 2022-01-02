@@ -19,19 +19,34 @@ Download the latest binary corresponding to your platform from [releases](https:
 ```
 
 ```bash
+./goaround -q "Python upper case a string"
+```
+
+```bash
 export STACKOVERFLOW_APP_KEY="<your app key>"
 export STACKOVERFLOW_PAGE_SIZE=50
 ./goaround -q "<your query>"
 ```
+
+```bash
+export STACKOVERFLOW_APP_KEY="<your app key>"
+export STACKOVERFLOW_PAGE_SIZE=50
+./goaround -q "Python upper case a string"
+```
+
 To get more accurate results you can pass the tags as comma separated values, results containing at least one of the tags will be shown
 
 ```bash
 ./goaround -q "<your query>" -t "<comma seperated values>"
 ```
 
+```bash
+./goaround -q "Python upper case a string" -t "python,python3"
+```
+
 ### Using `goaround` as wrapper to run other programs (currently only supports go and python)
 
-`goaround` can be used to capture the std error of other porgrams and query the stackoverflow API with the erorr generated and display the results.
+`goaround` can be used to capture the `Stderr` of other porgrams and query the stackoverflow API with the erorr generated and display the results.
 
 ```bash
 ./goaround -p "<your command>"
