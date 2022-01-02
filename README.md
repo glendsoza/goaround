@@ -8,9 +8,11 @@ Go around uses the stackoverflow API to get the answers for the given query and 
 
 ## Installation
 
-Download the binary corresponding to your platform from [releases](https://github.com/glendsoza/goaround/releases/tag/v0.3) page
+Download the latest binary corresponding to your platform from [releases](https://github.com/glendsoza/goaround/releases/tag/v0.4) page
 
 ## Usage
+
+### Querying the API directly
 
 ```bash
 ./goaround -q "<your query>"
@@ -27,6 +29,29 @@ To get more accurate results you can pass the tags as comma separated values, re
 ./goaround -q "<your query>" -t "<comma seperated values>"
 ```
 
+### Using `goaround` as wrapper to run other programs (currently only supports go and python)
+
+`goaround` can be used to capture the std error of other porgrams and query the stackoverflow API with the erorr generated and display the results.
+
+```bash
+./goaround -p "<your command>"
+```
+
+```bash
+./goaround -p "go run main.go"
+```
+
+```bash
+./goaround -p "python main.py"
+```
+
+Few things to note while using `goaround` as wrapper:
+
+- Stdout of the command will be displayed in the terminal in real time
+- Only the error pushed to `Stderr` will be used to query the stackoverflow API
+- In this mode tags provided via `-t` will be ignored and name of the executable in the command will be taken as tag
+
+### Navigating through the results
 
 - In questions screen use the Mouse Scroll or Arrow Keys to go up and down
 - Use the Enter key to open the answer
@@ -46,5 +71,4 @@ Following environment can be used to configure the tool.
 
 Following Features are planned to be added in the future but any help is welcome!
 
-- Make the tool similar to [Rebound](https://github.com/shobrook/rebound)
 - Provide button to copy the code from the answers to the clipboard
