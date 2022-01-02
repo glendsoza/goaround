@@ -86,4 +86,5 @@ Following environment can be used to configure the tool.
 
 Following Features are planned to be added in the future but any help is welcome!
 
+- Make results more accurate and relevant
 - Provide button to copy the code from the answers to the clipboard
