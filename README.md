@@ -21,6 +21,11 @@ export STACKOVERFLOW_APP_KEY="<your app key>"
 export STACKOVERFLOW_PAGE_SIZE=50
 ./goaround -q "<your query>"
 ```
+To get more accurate results you can pass the tags as comma separated values, results containing at least one of the tags will be shown
+
+```bash
+./goaround -q "<your query>" -t "<comma seperated values>"
+```
 
 
 - In questions screen use the Mouse Scroll or Arrow Keys to go up and down
