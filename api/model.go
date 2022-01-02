@@ -1,5 +1,7 @@
 package api
 
+// Structs to mapping the stackoverflow api data
+
 type ErrorResponse struct {
 	ErrorID      int    `json:"error_id"`
 	Backoff      int    `json:"backoff"`

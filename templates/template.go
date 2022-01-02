@@ -1,5 +1,7 @@
 package templates
 
+// Template to render answers
+
 var AnswerTemplate = `[#90ee90]Question[-]
 
 [#00FFFF]{{ .Question.Title }}[-]

@@ -14,20 +14,25 @@ type QuestionWD struct {
 	questionMapping map[int]*api.Question
 }
 
+// Create and return a new question widget
 func NewQuestionWidget() *QuestionWD {
 	return &QuestionWD{tview.NewList(), make(map[int]*api.Question)}
 }
 
-func (qwd *QuestionWD) Populate(doneChan chan int, q string, errorHandler func(error)) {
-	result, err := api.Search(q)
+// Populates the question widget
+func (qwd *QuestionWD) Populate(doneChan chan int, errorHandler func(error)) {
+	result, err := api.Search()
+	// In case of error call the error handler
 	if err != nil {
 		errorHandler(err)
 	}
+	// if api returns error set the secondary text to error
 	if result.ErrorID == 400 {
 		qwd.AddItem("Invalid key/page size supplied", "error", '0', nil)
 	} else {
 		for idx, data := range result.Items {
 			data.Title = html.UnescapeString(data.Title)
+			// create the mapping between question id and question
 			qwd.questionMapping[idx] = data
 			qwd.AddItem(fmt.Sprintf("[yellow](%d)[-] %s (%d Answers)",
 				idx,
@@ -35,10 +40,13 @@ func (qwd *QuestionWD) Populate(doneChan chan int, q string, errorHandler func(e
 				data.AnswerCount), "", 0, nil)
 		}
 	}
-
+	// send a signal to indicate quesiton has been loaded
 	doneChan <- 1
 }
+
+// Wrapper before rendering the widget
 func (qwd *QuestionWD) Render() *QuestionWD {
+	// if no question are found then set the secondary text to error to suppress on select function
 	if qwd.GetItemCount() == 0 {
 		qwd.AddItem("No Data To Display", "error", '0', nil)
 	}
@@ -46,12 +54,14 @@ func (qwd *QuestionWD) Render() *QuestionWD {
 	if os.Getenv("STACKOVERFLOW_APP_KEY") != "" {
 		usingKey = "Yes"
 	}
+	// set the quotas and key in the title
 	qwd.SetTitle(fmt.Sprintf("[red]Quota Max : %d | Quota Remaining : %d | Using Key : %s [-]",
 		api.CurrentQuota.QuotaMax,
 		api.CurrentQuota.QuotaRemaining, usingKey))
 	return qwd
 }
 
+// Returns the question object based on the selected question
 func (qwd *QuestionWD) GetSelectedQuestion(idx int) *api.Question {
 	return qwd.questionMapping[idx]
 }
