@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"goaround/constants"
 )
 
 // Add the common parameters to each stack overflow request
@@ -26,7 +27,7 @@ func prepareRequest(url, filter string) (*http.Request, url.Values) {
 }
 
 func GetAnswer(qid int) (*AnswerResult, error) {
-	req, urlQuery := prepareRequest(fmt.Sprintf(STACK_OVERFLOW_ANSWER_URL, qid), "!)xh)am6dFD--YIhimaEuiQq")
+	req, urlQuery := prepareRequest(fmt.Sprintf(constants.STACK_OVERFLOW_API_ANSWER_URL, qid), "!)xh)am6dFD--YIhimaEuiQq")
 	req.URL.RawQuery = urlQuery.Encode()
 	client := http.Client{}
 	resp, err := client.Do(req)
@@ -41,7 +42,7 @@ func GetAnswer(qid int) (*AnswerResult, error) {
 }
 
 func Search(query string, tags string) (*SearchResult, error) {
-	req, urlQuery := prepareRequest(STACK_OVERFLOW_SEARCH_URL, "!6VClR6PL.AoK9*EK(Zdsdl0uY")
+	req, urlQuery := prepareRequest(constants.STACK_OVERFLOW_API_SEARCH_URL, "!6VClR6PL.AoK9*EK(Zdsdl0uY")
 	urlQuery.Add("q", query)
 	urlQuery.Add("sort", "relevance")
 	// get the questions with atleast 1 answer

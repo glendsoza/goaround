@@ -18,8 +18,8 @@ func GetDateDiffInDays(t int) int {
 }
 
 // Function to generate seperator string in anwser template
-// Idea behind thsi function is to generate string with length equal to width of the terminal
-// Coud not figure out how to do so this server as placeholder for now
+// Idea behind this function is to generate string with length equal to width of the terminal
+// Coud not figure out how to do the same hence this function is serving as placeholder
 func GenerateSeperatorString(w int) string {
 	sep := ""
 	for x := 0; x <= w; x++ {
@@ -28,7 +28,7 @@ func GenerateSeperatorString(w int) string {
 	return sep
 }
 
-// Beutify the html text
+// Beautify the html text
 func beautify(doc *html.Node) string {
 	data := ""
 	var crawler func(*html.Node)
@@ -36,7 +36,7 @@ func beautify(doc *html.Node) string {
 		if node.Type == html.TextNode {
 			if node.Parent.Data == "code" {
 				// in case of multi line code block we want to add \t to the begining of each line
-				// and highlight it with yello
+				// and highlight it with yellow
 				if len(strings.Split(node.Data, "\n")) > 1 {
 					data += "[yellow]\n"
 					for _, s := range strings.Split(node.Data, "\n") {
@@ -60,7 +60,7 @@ func beautify(doc *html.Node) string {
 	return data
 }
 
-// Get the formatted text from the anwer body+
+// Get the formatted text from the answer body
 func BeautifyHtmlText(text string) string {
 	doc, err := html.Parse(strings.NewReader(text))
 	if err != nil {

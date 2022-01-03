@@ -10,7 +10,7 @@ var AnswerTemplate = `[#90ee90]Question[-]
 
 [#90ee90]UpVotes {{ .Question.UpVoteCount }} | Asked {{ GetDateDiffInDays .Question.CreationDate }} days ago[-]
 
-[#90ee90]Link[-] [blue]https://stackoverflow.com/questions/{{ .Question.QuestionID }}[-]
+[#90ee90]Link[-] [blue]{{ .QuestionURL }}{{ .Question.QuestionID }}[-]
 
 [#90ee90]{{ .SeperatorString }}[-]
 

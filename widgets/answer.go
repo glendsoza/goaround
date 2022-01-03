@@ -3,16 +3,15 @@ package widgets
 import (
 	"bytes"
 	"goaround/api"
+	"goaround/constants"
 	gwt "goaround/templates"
 	"goaround/utils"
-	"regexp"
 	"sort"
 	"text/template"
 
 	"github.com/rivo/tview"
 )
 
-var REPLACE_MULTIPLE_NEW_LINE_REGEX = regexp.MustCompile("(\n\n)+")
 var answerCache = make(map[int]*api.AnswerResult)
 
 type AnswerWD struct {
@@ -73,15 +72,17 @@ func (awd *AnswerWD) Populate(doneChan chan int) {
 		Question        *api.Question
 		SeperatorString string
 		Answers         []*api.Answer
+		QuestionURL     string
 	}{Question: awd.question,
 		SeperatorString: utils.GenerateSeperatorString(25),
-		Answers:         answers.Items})
+		Answers:         answers.Items,
+		QuestionURL:     constants.STACK_OVERFLOW_UI_QUESTION_URL})
 	// In case of error call the error handler
 	if err != nil {
 		buf.WriteString("[red]Something went wrong while rendering the anwer[-]")
 	}
 	// Replace 2 or more new lines with a single new line
-	awd.SetText(REPLACE_MULTIPLE_NEW_LINE_REGEX.ReplaceAllString(buf.String(), "\n\n"))
+	awd.SetText(constants.REPLACE_MULTIPLE_NEW_LINE_REGEX.ReplaceAllString(buf.String(), "\n\n"))
 	// send a signal to indicate answers have been loaded
 	doneChan <- 1
 }
