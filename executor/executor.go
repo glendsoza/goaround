@@ -22,10 +22,10 @@ func Execute(command string) (string, string) {
 	var errorBuff bytes.Buffer
 	// print the stdout
 	cmd.Stdout = os.Stdout
-	// Storing the error in buffer inf any
+	// Storing the error in buffer if any
 	cmd.Stderr = &errorBuff
 	err := cmd.Start()
-	// Exit if commands cannot be run
+	// Exit if command cannot be run
 	if err != nil {
 		log.Println("Please fix the following error")
 		log.Fatal(err)
@@ -49,7 +49,7 @@ func Execute(command string) (string, string) {
 				return data[len(data)-2], executable
 			}
 		case "default":
-			log.Println("Unrecogized executable")
+			log.Println("Unrecognized executable")
 		}
 	}
 	return "", ""
