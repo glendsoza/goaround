@@ -1,3 +1,3 @@
 package executor
 
-var Command string
+// var Command string

@@ -25,7 +25,7 @@ func prepareRequest(url, filter string) (*http.Request, url.Values) {
 	return req, urlQuery
 }
 
-func GetAnswer(qid int) ([]*Answer, error) {
+func GetAnswer(qid int) (*AnswerResult, error) {
 	req, urlQuery := prepareRequest(fmt.Sprintf(STACK_OVERFLOW_ANSWER_URL, qid), "!)xh)am6dFD--YIhimaEuiQq")
 	req.URL.RawQuery = urlQuery.Encode()
 	client := http.Client{}
@@ -36,20 +36,18 @@ func GetAnswer(qid int) ([]*Answer, error) {
 	}
 	var answerResult AnswerResult
 	json.NewDecoder(resp.Body).Decode(&answerResult)
-	// update the quota object
-	CurrentQuota.QuotaMax = answerResult.QuotaMax
-	CurrentQuota.QuotaRemaining = answerResult.QuotaRemaining
-	return answerResult.Items, nil
+	SetCurrentQuota(answerResult.QuotaRemaining, answerResult.QuotaMax)
+	return &answerResult, nil
 }
 
-func Search() (*SearchResult, error) {
+func Search(query string, tags string) (*SearchResult, error) {
 	req, urlQuery := prepareRequest(STACK_OVERFLOW_SEARCH_URL, "!6VClR6PL.AoK9*EK(Zdsdl0uY")
-	urlQuery.Add("q", Query)
+	urlQuery.Add("q", query)
 	urlQuery.Add("sort", "relevance")
 	// get the questions with atleast 1 answer
 	urlQuery.Add("answers", "1")
-	if Tags != "nil" {
-		urlQuery.Add("tagged", Tags)
+	if tags != "" {
+		urlQuery.Add("tagged", tags)
 	}
 	req.URL.RawQuery = urlQuery.Encode()
 	client := http.Client{}
@@ -60,9 +58,7 @@ func Search() (*SearchResult, error) {
 	}
 	var searchResult SearchResult
 	json.NewDecoder(resp.Body).Decode(&searchResult)
-	// update the quota object
-	CurrentQuota.QuotaMax = searchResult.QuotaMax
-	CurrentQuota.QuotaRemaining = searchResult.QuotaRemaining
+	SetCurrentQuota(searchResult.QuotaRemaining, searchResult.QuotaMax)
 	return &searchResult, nil
 
 }

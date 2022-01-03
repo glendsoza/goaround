@@ -3,23 +3,29 @@ package main
 import (
 	"flag"
 	"fmt"
-	"goaround/api"
 	"goaround/executor"
 	"goaround/ui"
 	"log"
 )
 
+var (
+	command,
+	query,
+	tags string
+)
+
 func main() {
-	flag.StringVar(&api.Query, "q", "", "Query to search")
-	flag.StringVar(&api.Tags, "t", "", "List of command seperated tags to narrow down the search")
-	flag.StringVar(&executor.Command, "p", "", "Command to execute")
+
+	flag.StringVar(&query, "q", "", "Query to search")
+	flag.StringVar(&tags, "t", "", "List of command seperated tags to narrow down the search")
+	flag.StringVar(&command, "p", "", "Command to execute")
 	flag.Parse()
-	if api.Query == "" && executor.Command == "" {
+	if query == "" && command == "" {
 		log.Fatal("Please pass either a query or a command to execute")
 	}
 	// check if any command is provided
-	if executor.Command != "" {
-		errorString, executable := executor.Execute()
+	if command != "" {
+		errorString, executable := executor.Execute(command)
 		// if error string is not empty then the command failed
 		if errorString != "" {
 			var input string
@@ -27,8 +33,8 @@ func main() {
 			fmt.Println("Do you want to display Stackoverflow results? (y/n)")
 			fmt.Scanln(&input)
 			if input == "y" || input == "Y" {
-				api.Query = errorString
-				api.Tags = executable
+				query = errorString
+				tags = executable
 			} else {
 				return
 			}
@@ -38,5 +44,7 @@ func main() {
 		}
 	}
 	// Initialize the ui depending on if q is provided or command provided via p failed
-	ui.InIt()
+	if err := ui.Run(query, tags); err != nil {
+		log.Fatal(err)
+	}
 }

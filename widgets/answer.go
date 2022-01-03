@@ -13,7 +13,7 @@ import (
 )
 
 var REPLACE_MULTIPLE_NEW_LINE_REGEX = regexp.MustCompile("(\n\n)+")
-var answerCache = make(map[int][]*api.Answer)
+var answerCache = make(map[int]*api.AnswerResult)
 
 type AnswerWD struct {
 	*tview.TextView
@@ -39,7 +39,7 @@ func NewAnswerWidget(question *api.Question) (*AnswerWD, error) {
 }
 
 // Get the answers for the given question
-func (awd *AnswerWD) GetAnswer(errorHandler func(error)) []*api.Answer {
+func (awd *AnswerWD) GetAnswer() (*api.AnswerResult, error) {
 	// Check if answer is already cached
 	data, ok := answerCache[awd.question.QuestionID]
 	if !ok {
@@ -47,31 +47,38 @@ func (awd *AnswerWD) GetAnswer(errorHandler func(error)) []*api.Answer {
 		data, err := api.GetAnswer(awd.question.QuestionID)
 		// In case of error call the error handler
 		if err != nil {
-			errorHandler(err)
+			return nil, err
 		}
 		// sort the answers by accepted field
-		sort.Slice(data, func(i int, j int) bool {
-			return data[i].IsAccepted
+		sort.Slice(data.Items, func(i int, j int) bool {
+			return data.Items[i].IsAccepted
 		})
 		answerCache[awd.question.QuestionID] = data
-		return data
+		return data, nil
 	}
-	return data
+	return data, nil
 }
 
 // Populates the answer widget
-func (awd *AnswerWD) Populate(doneChan chan int, errorHandler func(error)) {
+func (awd *AnswerWD) Populate(doneChan chan int) {
 	buf := &bytes.Buffer{}
-	err := awd.answerTemplate.Execute(buf, struct {
+	// get the answers
+	answers, err := awd.GetAnswer()
+	if err != nil {
+		awd.SetText("[red]Something went wrong while calling api[-]")
+		doneChan <- 1
+		return
+	}
+	err = awd.answerTemplate.Execute(buf, struct {
 		Question        *api.Question
 		SeperatorString string
 		Answers         []*api.Answer
 	}{Question: awd.question,
 		SeperatorString: utils.GenerateSeperatorString(25),
-		Answers:         awd.GetAnswer(errorHandler)})
+		Answers:         answers.Items})
 	// In case of error call the error handler
 	if err != nil {
-		errorHandler(err)
+		buf.WriteString("[red]Something went wrong while rendering the anwer[-]")
 	}
 	// Replace 2 or more new lines with a single new line
 	awd.SetText(REPLACE_MULTIPLE_NEW_LINE_REGEX.ReplaceAllString(buf.String(), "\n\n"))

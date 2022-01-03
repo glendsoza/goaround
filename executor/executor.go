@@ -12,9 +12,9 @@ import (
 
 var PYTHON_EXEPECTED_ERRORS_REGEX = regexp.MustCompile(`KeyboardInterrupt|SystemExit|GeneratorExit`)
 
-func Execute() (string, string) {
+func Execute(command string) (string, string) {
 	// Split the command into tokens
-	commandTokens := strings.Split(Command, " ")
+	commandTokens := strings.Split(command, " ")
 	// grab the executable name
 	executable := commandTokens[0]
 	cmd := exec.Command(executable, commandTokens[1:]...)

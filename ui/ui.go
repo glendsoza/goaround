@@ -2,7 +2,6 @@ package ui
 
 import (
 	"goaround/widgets"
-	"log"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -21,8 +20,8 @@ func initLoading() *widgets.LoadingWD {
 }
 
 // Initialize the question widget
-func initQuestion() *widgets.QuestionWD {
-	qwd := widgets.NewQuestionWidget()
+func initQuestion(query string, tags string) *widgets.QuestionWD {
+	qwd := widgets.NewQuestionWidget(query, tags)
 	qwd.SetSelectedBackgroundColor(tcell.ColorDarkCyan)
 	qwd.ShowSecondaryText(false)
 	qwd.SetBorder(true)
@@ -30,13 +29,9 @@ func initQuestion() *widgets.QuestionWD {
 	return qwd
 }
 
-func InIt() {
-	qwd := initQuestion()
+func Run(query string, tags string) error {
+	qwd := initQuestion(query, tags)
 	lwd := initLoading()
-	errorHandler := func(err error) {
-		app.Stop()
-		log.Fatal(err)
-	}
 	qwd.SetSelectedFunc(func(a int, b, c string, d rune) {
 		// When the questions are not loaded secondary text of the question will be set to error
 		// in this case we simply want to return
@@ -46,7 +41,9 @@ func InIt() {
 		doneChan := make(chan int)
 		awd, err := widgets.NewAnswerWidget(qwd.GetSelectedQuestion(a))
 		if err != nil {
-			errorHandler(err)
+			qwd.Clear()
+			qwd.AddItem("Something went wrong while initializing the answer", "error", '0', nil)
+			return
 		}
 		awd.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 			if event.Key() == tcell.KeyBackspace2 || event.Key() == tcell.KeyBackspace {
@@ -60,7 +57,7 @@ func InIt() {
 		awd.SetBorderColor(tcell.ColorSnow)
 		awd.SetToggleHighlights(true)
 		// call the go routine to populate the answers
-		go awd.Populate(doneChan, errorHandler)
+		go awd.Populate(doneChan)
 		go lwd.Load(app, func() {
 			app.SetRoot(awd, true)
 		}, doneChan)
@@ -68,11 +65,12 @@ func InIt() {
 	})
 	doneChan := make(chan int)
 	// go the go routine to populate questions
-	go qwd.Populate(doneChan, errorHandler)
+	go qwd.Populate(doneChan)
 	go lwd.Load(app, func() {
 		app.SetRoot(qwd.Render(), true)
 	}, doneChan)
 	if err := app.SetRoot(lwd, true).EnableMouse(false).Run(); err != nil {
-		panic(err)
+		return err
 	}
+	return nil
 }

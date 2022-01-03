@@ -29,7 +29,7 @@ platforms=("darwin/amd64"
 "windows/arm"
 "windows/arm64")
 
-version="0.4"
+version="0.5"
 package_split=(${package//\// })
 package_name=${package_split[-1]}
 for platform in "${platforms[@]}"

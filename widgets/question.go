@@ -12,19 +12,23 @@ import (
 type QuestionWD struct {
 	*tview.List
 	questionMapping map[int]*api.Question
+	query           string
+	tags            string
 }
 
 // Create and return a new question widget
-func NewQuestionWidget() *QuestionWD {
-	return &QuestionWD{tview.NewList(), make(map[int]*api.Question)}
+func NewQuestionWidget(query string, tags string) *QuestionWD {
+	return &QuestionWD{tview.NewList(), make(map[int]*api.Question), query, tags}
 }
 
 // Populates the question widget
-func (qwd *QuestionWD) Populate(doneChan chan int, errorHandler func(error)) {
-	result, err := api.Search()
+func (qwd *QuestionWD) Populate(doneChan chan int) {
+	result, err := api.Search(qwd.query, qwd.tags)
 	// In case of error call the error handler
 	if err != nil {
-		errorHandler(err)
+		qwd.AddItem("Something went wrong while calling api", "error", '0', nil)
+		doneChan <- 1
+		return
 	}
 	// if api returns error set the secondary text to error
 	if result.ErrorID == 400 {
@@ -55,9 +59,10 @@ func (qwd *QuestionWD) Render() *QuestionWD {
 		usingKey = "Yes"
 	}
 	// set the quotas and key in the title
+	remainingQuota, maxQuota := api.GetCurrentQuota()
 	qwd.SetTitle(fmt.Sprintf("[red]Quota Max : %d | Quota Remaining : %d | Using Key : %s [-]",
-		api.CurrentQuota.QuotaMax,
-		api.CurrentQuota.QuotaRemaining, usingKey))
+		maxQuota,
+		remainingQuota, usingKey))
 	return qwd
 }
 
