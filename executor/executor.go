@@ -10,6 +10,7 @@ import (
 	"strings"
 )
 
+// TODO move this to constants file
 var PYTHON_EXEPECTED_ERRORS_REGEX = regexp.MustCompile(`KeyboardInterrupt|SystemExit|GeneratorExit`)
 
 func Execute(command string) (string, string) {
