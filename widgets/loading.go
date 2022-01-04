@@ -41,3 +41,7 @@ func (lwd *LoadingWD) Load(app *tview.Application, updateFunc func(), doneChan c
 		}
 	}
 }
+
+func (lwd *LoadingWD) Render() tview.Primitive {
+	return lwd
+}

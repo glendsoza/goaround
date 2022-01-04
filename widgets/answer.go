@@ -21,7 +21,17 @@ type AnswerWD struct {
 }
 
 // Create and return a new answer widget
-func NewAnswerWidget(question *api.Question) (*AnswerWD, error) {
+func NewAnswerWidget() *AnswerWD {
+	awd := &AnswerWD{tview.NewTextView(), nil, nil}
+	awd.initializeTemplate()
+	return awd
+}
+
+func (awd *AnswerWD) IsTemplateInitialized() bool {
+	return awd.answerTemplate != nil
+}
+
+func (awd *AnswerWD) initializeTemplate() {
 	// Initialize the template for the answer
 	t, err := template.New("AnswerTemplate").Funcs(template.FuncMap{
 		"BeautifyHtmlText":  utils.BeautifyHtmlText,
@@ -31,14 +41,17 @@ func NewAnswerWidget(question *api.Question) (*AnswerWD, error) {
 		},
 	}).Parse(gwt.AnswerTemplate)
 	// If template initialization fails return the error to the caller
-	if err != nil {
-		return nil, err
+	if err == nil {
+		awd.answerTemplate = t
 	}
-	return &AnswerWD{tview.NewTextView(), question, t}, nil
+}
+
+func (awd *AnswerWD) SetQuestion(question *api.Question) {
+	awd.question = question
 }
 
 // Get the answers for the given question
-func (awd *AnswerWD) GetAnswer() (*api.AnswerResult, error) {
+func (awd *AnswerWD) getAnswer() (*api.AnswerResult, error) {
 	// Check if answer is already cached
 	data, ok := answerCache[awd.question.QuestionID]
 	if !ok {
@@ -60,9 +73,10 @@ func (awd *AnswerWD) GetAnswer() (*api.AnswerResult, error) {
 
 // Populates the answer widget
 func (awd *AnswerWD) Populate(doneChan chan int) {
+	awd.Clear()
 	buf := &bytes.Buffer{}
 	// get the answers
-	answers, err := awd.GetAnswer()
+	answers, err := awd.getAnswer()
 	if err != nil {
 		awd.SetText("[red]Something went wrong while calling api[-]")
 		doneChan <- 1
@@ -85,4 +99,8 @@ func (awd *AnswerWD) Populate(doneChan chan int) {
 	awd.SetText(constants.REPLACE_MULTIPLE_NEW_LINE_REGEX.ReplaceAllString(buf.String(), "\n\n"))
 	// send a signal to indicate answers have been loaded
 	doneChan <- 1
+}
+
+func (awd *AnswerWD) Render() tview.Primitive {
+	return awd
 }

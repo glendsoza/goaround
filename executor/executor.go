@@ -3,15 +3,12 @@ package executor
 import (
 	"bytes"
 	"fmt"
+	"goaround/constants"
 	"log"
 	"os"
 	"os/exec"
-	"regexp"
 	"strings"
 )
-
-// TODO move this to constants file
-var PYTHON_EXEPECTED_ERRORS_REGEX = regexp.MustCompile(`KeyboardInterrupt|SystemExit|GeneratorExit`)
 
 func Execute(command string) (string, string) {
 	// Split the command into tokens
@@ -44,7 +41,7 @@ func Execute(command string) (string, string) {
 			}
 		case "python", "python3":
 			// expected errors
-			if !PYTHON_EXEPECTED_ERRORS_REGEX.MatchString(errorString) {
+			if !constants.PYTHON_EXEPECTED_ERRORS_REGEX.MatchString(errorString) {
 				data := strings.Split(errorString, "\n")
 				return data[len(data)-2], executable
 			}

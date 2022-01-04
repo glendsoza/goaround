@@ -16,13 +16,22 @@ type QuestionWD struct {
 	tags            string
 }
 
+func (qwd *QuestionWD) SetQuery(query string) {
+	qwd.query = query
+}
+
+func (qwd *QuestionWD) SetTags(tags string) {
+	qwd.tags = tags
+}
+
 // Create and return a new question widget
-func NewQuestionWidget(query string, tags string) *QuestionWD {
-	return &QuestionWD{tview.NewList(), make(map[int]*api.Question), query, tags}
+func NewQuestionWidget() *QuestionWD {
+	return &QuestionWD{tview.NewList(), make(map[int]*api.Question), "", ""}
 }
 
 // Populates the question widget
 func (qwd *QuestionWD) Populate(doneChan chan int) {
+	qwd.Clear()
 	result, err := api.Search(qwd.query, qwd.tags)
 	// In case of error call the error handler
 	if err != nil {
@@ -49,7 +58,7 @@ func (qwd *QuestionWD) Populate(doneChan chan int) {
 }
 
 // Wrapper before rendering the widget
-func (qwd *QuestionWD) Render() *QuestionWD {
+func (qwd *QuestionWD) Render() tview.Primitive {
 	// if no question are found then set the secondary text to error to suppress on select function
 	if qwd.GetItemCount() == 0 {
 		qwd.AddItem("No Data To Display", "error", '0', nil)
