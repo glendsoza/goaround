@@ -60,7 +60,6 @@ func NewManager() *Manager {
 		lwd: initLoadingWD(),
 		fwd: initFormWidget(),
 	}
-
 	return m
 }
 
@@ -80,28 +79,28 @@ func (m *Manager) setAnswerInputCapture() {
 				m.renderQuestion()
 				return nil
 			}
-		case tcell.KeyRune:
-			if event.Rune() == 'r' {
-				m.displayForm(m.awd)
-				return nil
-			}
+		case tcell.KeyCtrlR:
+			m.displayForm(m.awd)
+			return nil
 		}
 		return event
 	})
 }
 
+// Change this to populate
 func (m *Manager) displayForm(onCancelPrimitive Renderable) {
 	m.fwd.Clear(true)
 	m.fwd.AddInputField("Query", "", 1000, nil, nil).
+		AddInputField("Tags", "", 1000, nil, nil).
 		AddButton("Submit", func() {
-			m.qwd.SetQuery("python requets module")
-			m.qwd.SetTags("python")
+			m.qwd.SetQuery(m.fwd.GetFormItem(0).(*tview.InputField).GetText())
+			m.qwd.SetTags(m.fwd.GetFormItem(1).(*tview.InputField).GetText())
 			m.loadQuestions()
 		})
 	m.fwd.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Key() {
-		case tcell.KeyBackspace2, tcell.KeyBackspace:
-			if event.Key() == tcell.KeyBackspace2 || event.Key() == tcell.KeyBackspace {
+		case tcell.KeyCtrlR:
+			{
 				app.SetRoot(onCancelPrimitive.Render(), true)
 				return nil
 			}
@@ -113,8 +112,8 @@ func (m *Manager) displayForm(onCancelPrimitive Renderable) {
 
 func (m *Manager) setQuestionInputCapture() {
 	m.qwd.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		switch event.Rune() {
-		case rune('r'):
+		switch event.Key() {
+		case tcell.KeyCtrlR:
 			{
 				m.displayForm(m.qwd)
 				return nil
@@ -166,6 +165,7 @@ func (m *Manager) renderQuestion() {
 
 func (m *Manager) renderAnswer() {
 	app.SetRoot(m.awd.Render(), true)
+
 }
 
 func (m *Manager) renderLoading() {
@@ -177,7 +177,6 @@ func (m *Manager) renderForm() {
 }
 
 func (m *Manager) Run() error {
-	m.displayForm(m.awd)
 	m.setQuestionInputCapture()
 	m.setAnswerInputCapture()
 	m.setSelectedQuestionHandler()
