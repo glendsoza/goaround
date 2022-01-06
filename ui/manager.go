@@ -19,7 +19,7 @@ type Manager struct {
 	wwd *widgets.WrapperWD
 }
 
-// Add default set up for question widget
+// default set up for question widget
 func initQuestionWD() *widgets.QuestionWD {
 	qwd := widgets.NewQuestionWidget()
 	qwd.SetSelectedBackgroundColor(tcell.ColorDarkCyan)
@@ -29,7 +29,7 @@ func initQuestionWD() *widgets.QuestionWD {
 	return qwd
 }
 
-// Add default set up for loading widget
+// default set up for loading widget
 func initLoadingWD() *widgets.LoadingWD {
 	lwd := widgets.NewLoadingWidget()
 	lwd.SetTitle("[red]Please wait, Querying stack overflow api")
@@ -39,7 +39,7 @@ func initLoadingWD() *widgets.LoadingWD {
 	return lwd
 }
 
-// Add default set up for answer widget
+// default set up for answer widget
 func initAnswerWD() *widgets.AnswerWD {
 	awd := widgets.NewAnswerWidget()
 	awd.SetWrap(true)
@@ -50,12 +50,12 @@ func initAnswerWD() *widgets.AnswerWD {
 
 }
 
-// Add default set up for form widget
+// default set up for form widget
 func initFormWidget() *widgets.FormWD {
 	return widgets.NewFormWidget()
 }
 
-// Add default set up for wrapper widget
+// default set up for wrapper widget
 func initWrapperWidget() *widgets.WrapperWD {
 	return widgets.NewWrapperWD()
 }
