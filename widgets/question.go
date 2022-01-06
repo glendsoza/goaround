@@ -61,7 +61,12 @@ func (qwd *QuestionWD) Populate(doneChan chan int) {
 	doneChan <- 1
 }
 
-// Wrapper before rendering the widget
+// Returns the question object based on the selected question
+func (qwd *QuestionWD) GetSelectedQuestion(idx int) *api.Question {
+	return qwd.questionMapping[idx]
+}
+
+// Wrapper method before rendering the widget
 func (qwd *QuestionWD) Render() tview.Primitive {
 	// if no question are found then set the secondary text to error to suppress on select function
 	if qwd.GetItemCount() == 0 {
@@ -77,9 +82,4 @@ func (qwd *QuestionWD) Render() tview.Primitive {
 		maxQuota,
 		remainingQuota, usingKey))
 	return qwd
-}
-
-// Returns the question object based on the selected question
-func (qwd *QuestionWD) GetSelectedQuestion(idx int) *api.Question {
-	return qwd.questionMapping[idx]
 }

@@ -10,6 +10,7 @@ import (
 
 var app = tview.NewApplication()
 
+// Struct responsible for rendering all other widgets
 type Manager struct {
 	qwd *widgets.QuestionWD
 	awd *widgets.AnswerWD
@@ -18,6 +19,7 @@ type Manager struct {
 	wwd *widgets.WrapperWD
 }
 
+// Add default set up for question widget
 func initQuestionWD() *widgets.QuestionWD {
 	qwd := widgets.NewQuestionWidget()
 	qwd.SetSelectedBackgroundColor(tcell.ColorDarkCyan)
@@ -27,6 +29,7 @@ func initQuestionWD() *widgets.QuestionWD {
 	return qwd
 }
 
+// Add default set up for loading widget
 func initLoadingWD() *widgets.LoadingWD {
 	lwd := widgets.NewLoadingWidget()
 	lwd.SetTitle("[red]Please wait, Querying stack overflow api")
@@ -36,6 +39,7 @@ func initLoadingWD() *widgets.LoadingWD {
 	return lwd
 }
 
+// Add default set up for answer widget
 func initAnswerWD() *widgets.AnswerWD {
 	awd := widgets.NewAnswerWidget()
 	awd.SetWrap(true)
@@ -46,10 +50,12 @@ func initAnswerWD() *widgets.AnswerWD {
 
 }
 
+// Add default set up for form widget
 func initFormWidget() *widgets.FormWD {
 	return widgets.NewFormWidget()
 }
 
+// Add default set up for wrapper widget
 func initWrapperWidget() *widgets.WrapperWD {
 	return widgets.NewWrapperWD()
 }
@@ -118,7 +124,6 @@ func (m *Manager) waitForAnswerLoad() {
 
 func (m *Manager) waitForQuestionLoad() {
 	doneChan := make(chan int)
-	// go the go routine to populate questions
 	go m.qwd.Populate(doneChan)
 	go m.lwd.Load(app, func() {
 		m.renderQuestion()
@@ -132,7 +137,9 @@ func (m *Manager) setSelectedQuestionHandler() {
 		if c == "error" {
 			return
 		}
+		// Check if answer template is loaded correctly
 		if !m.awd.IsTemplateInitialized() {
+			// If answer template is not loaded then change the text of question to indicate the same
 			m.qwd.Clear()
 			m.qwd.AddItem("Something went wrong while initializing the answer", "error", '0', nil)
 			return
@@ -147,22 +154,26 @@ func (m *Manager) render(primitive tview.Primitive) {
 	app.SetRoot(primitive, true)
 }
 
+// Wrap the widget inside a Wrapper widget and display it
 func (m *Manager) renderQuestion() {
 	m.wwd.AddItem(m.qwd.Render())
 	m.wwd.SetText(constants.QUESTION_FOOTER)
 	m.render(m.wwd.Render())
 }
 
+// Wrap the widget inside a Wrapper widget and display it
 func (m *Manager) renderAnswer() {
 	m.wwd.AddItem(m.awd.Render())
 	m.wwd.SetText(constants.ANSWER_FOOTER)
 	m.render(m.wwd.Render())
 }
 
+// Wrap the widget inside a Wrapper widget and display it
 func (m *Manager) renderLoading() {
 	app.SetRoot(m.lwd.Render(), true)
 }
 
+// Wrap the widget inside a Wrapper widget and display it
 func (m *Manager) renderForm() {
 	m.wwd.AddItem(m.fwd.Render())
 	m.wwd.SetText(constants.FORM_FOOTER)
