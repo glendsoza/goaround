@@ -72,6 +72,7 @@ Few things to note while using `goaround` as wrapper:
 - Use the Enter key to open the answer
 - Use the Backspace key to go back from answers to the questions screen
 - Use the `Ctrl + c` key to exit the application
+- Hot keys with sepcial function in each screen will be displayed on the bottom of the screen
 
 ## Configuration
 
