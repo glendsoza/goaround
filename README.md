@@ -8,7 +8,7 @@ Go around uses the stackoverflow API to get the answers for the given query and 
 
 ## Installation
 
-Download the latest binary corresponding to your platform from [releases](https://github.com/glendsoza/goaround/releases/tag/v0.5) page
+Download the latest binary corresponding to your platform from [releases](https://github.com/glendsoza/goaround/releases/tag/v0.6) page
 
 ## Usage
 
@@ -72,7 +72,7 @@ Few things to note while using `goaround` as wrapper:
 - Use the Enter key to open the answer
 - Use the Backspace key to go back from answers to the questions screen
 - Use the `Ctrl + c` key to exit the application
-- Hot keys with sepcial function in each screen will be displayed on the bottom of the screen
+- Hot keys with special function in each screen will be displayed on the bottom of the screen
 
 ## Configuration
 
