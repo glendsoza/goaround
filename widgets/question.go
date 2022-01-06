@@ -24,6 +24,10 @@ func (qwd *QuestionWD) SetTags(tags string) {
 	qwd.tags = tags
 }
 
+func (qwd *QuestionWD) GetQuery() string {
+	return qwd.query
+}
+
 // Create and return a new question widget
 func NewQuestionWidget() *QuestionWD {
 	return &QuestionWD{tview.NewList(), make(map[int]*api.Question), "", ""}

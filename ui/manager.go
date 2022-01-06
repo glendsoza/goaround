@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"goaround/constants"
 	"goaround/widgets"
 
 	"github.com/gdamore/tcell/v2"
@@ -9,15 +10,12 @@ import (
 
 var app = tview.NewApplication()
 
-type Renderable interface {
-	Render() tview.Primitive
-}
-
 type Manager struct {
 	qwd *widgets.QuestionWD
 	awd *widgets.AnswerWD
 	lwd *widgets.LoadingWD
 	fwd *widgets.FormWD
+	wwd *widgets.WrapperWD
 }
 
 func initQuestionWD() *widgets.QuestionWD {
@@ -52,6 +50,10 @@ func initFormWidget() *widgets.FormWD {
 	return widgets.NewFormWidget()
 }
 
+func initWrapperWidget() *widgets.WrapperWD {
+	return widgets.NewWrapperWD()
+}
+
 func NewManager() *Manager {
 	// Initialize all the widgets
 	m := &Manager{
@@ -59,6 +61,7 @@ func NewManager() *Manager {
 		awd: initAnswerWD(),
 		lwd: initLoadingWD(),
 		fwd: initFormWidget(),
+		wwd: initWrapperWidget(),
 	}
 	return m
 }
@@ -80,34 +83,13 @@ func (m *Manager) setAnswerInputCapture() {
 				return nil
 			}
 		case tcell.KeyCtrlR:
-			m.displayForm(m.awd)
+			m.displayForm(func() {
+				m.renderAnswer()
+			})
 			return nil
 		}
 		return event
 	})
-}
-
-// Change this to populate
-func (m *Manager) displayForm(onCancelPrimitive Renderable) {
-	m.fwd.Clear(true)
-	m.fwd.AddInputField("Query", "", 1000, nil, nil).
-		AddInputField("Tags", "", 1000, nil, nil).
-		AddButton("Submit", func() {
-			m.qwd.SetQuery(m.fwd.GetFormItem(0).(*tview.InputField).GetText())
-			m.qwd.SetTags(m.fwd.GetFormItem(1).(*tview.InputField).GetText())
-			m.loadQuestions()
-		})
-	m.fwd.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		switch event.Key() {
-		case tcell.KeyCtrlR:
-			{
-				app.SetRoot(onCancelPrimitive.Render(), true)
-				return nil
-			}
-		}
-		return event
-	})
-	m.renderForm()
 }
 
 func (m *Manager) setQuestionInputCapture() {
@@ -115,7 +97,9 @@ func (m *Manager) setQuestionInputCapture() {
 		switch event.Key() {
 		case tcell.KeyCtrlR:
 			{
-				m.displayForm(m.qwd)
+				m.displayForm(func() {
+					m.renderQuestion()
+				})
 				return nil
 			}
 		}
@@ -132,7 +116,7 @@ func (m *Manager) waitForAnswerLoad() {
 	m.renderLoading()
 }
 
-func (m *Manager) loadQuestions() {
+func (m *Manager) waitForQuestionLoad() {
 	doneChan := make(chan int)
 	// go the go routine to populate questions
 	go m.qwd.Populate(doneChan)
@@ -159,13 +143,20 @@ func (m *Manager) setSelectedQuestionHandler() {
 	})
 }
 
+func (m *Manager) render(primitive tview.Primitive) {
+	app.SetRoot(primitive, true)
+}
+
 func (m *Manager) renderQuestion() {
-	app.SetRoot(m.qwd.Render(), true)
+	m.wwd.AddItem(m.qwd.Render())
+	m.wwd.SetText(constants.QUESTION_FOOTER)
+	m.render(m.wwd.Render())
 }
 
 func (m *Manager) renderAnswer() {
-	app.SetRoot(m.awd.Render(), true)
-
+	m.wwd.AddItem(m.awd.Render())
+	m.wwd.SetText(constants.ANSWER_FOOTER)
+	m.render(m.wwd.Render())
 }
 
 func (m *Manager) renderLoading() {
@@ -173,14 +164,38 @@ func (m *Manager) renderLoading() {
 }
 
 func (m *Manager) renderForm() {
-	app.SetRoot(m.fwd.Render(), true)
+	m.wwd.AddItem(m.fwd.Render())
+	m.wwd.SetText(constants.FORM_FOOTER)
+	m.render(m.wwd.Render())
+}
+
+func (m *Manager) displayForm(onReturnFunc func()) {
+	m.fwd.Clear(true)
+	m.fwd.AddInputField("Query", "", 1000, nil, nil).
+		AddInputField("Tags", "", 1000, nil, nil).
+		AddButton("Submit", func() {
+			m.qwd.SetQuery(m.fwd.GetFormItem(0).(*tview.InputField).GetText())
+			m.qwd.SetTags(m.fwd.GetFormItem(1).(*tview.InputField).GetText())
+			m.waitForQuestionLoad()
+		})
+	m.fwd.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		switch event.Key() {
+		case tcell.KeyCtrlR:
+			{
+				onReturnFunc()
+				return nil
+			}
+		}
+		return event
+	})
+	m.renderForm()
 }
 
 func (m *Manager) Run() error {
 	m.setQuestionInputCapture()
 	m.setAnswerInputCapture()
 	m.setSelectedQuestionHandler()
-	m.loadQuestions()
+	m.waitForQuestionLoad()
 	if err := app.SetRoot(m.lwd, true).EnableMouse(false).Run(); err != nil {
 		return err
 	}
