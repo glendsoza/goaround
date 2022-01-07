@@ -52,7 +52,9 @@ func initAnswerWD() *widgets.AnswerWD {
 
 // default set up for form widget
 func initFormWidget() *widgets.FormWD {
-	return widgets.NewFormWidget()
+	fwd := widgets.NewFormWidget()
+	fwd.SetBorder(true)
+	return fwd
 }
 
 // default set up for wrapper widget
@@ -184,6 +186,7 @@ func (m *Manager) displayForm(onReturnFunc func()) {
 	m.fwd.Clear(true)
 	m.fwd.AddInputField("Query", "", 1000, nil, nil).
 		AddInputField("Tags", "", 1000, nil, nil).
+		SetFieldTextColor(tcell.ColorBlack).
 		AddButton("Submit", func() {
 			m.qwd.SetQuery(m.fwd.GetFormItem(0).(*tview.InputField).GetText())
 			m.qwd.SetTags(m.fwd.GetFormItem(1).(*tview.InputField).GetText())
