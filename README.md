@@ -15,33 +15,33 @@ Download the latest binary corresponding to your platform from [releases](https:
 ### Querying the API directly
 
 ```bash
-./goaround -q "<your query>"
+./goaround search "<your query>"
 ```
 
 ```bash
-./goaround -q "Python upper case a string"
-```
-
-```bash
-export STACKOVERFLOW_APP_KEY="<your app key>"
-export STACKOVERFLOW_PAGE_SIZE=50
-./goaround -q "<your query>"
+./goaround search "Python upper case a string"
 ```
 
 ```bash
 export STACKOVERFLOW_APP_KEY="<your app key>"
 export STACKOVERFLOW_PAGE_SIZE=50
-./goaround -q "Python upper case a string"
+./goaround search "<your query>"
+```
+
+```bash
+export STACKOVERFLOW_APP_KEY="<your app key>"
+export STACKOVERFLOW_PAGE_SIZE=50
+./goaround search "Python upper case a string"
 ```
 
 To get more accurate results you can pass the tags as comma separated values, results containing at least one of the tags will be shown
 
 ```bash
-./goaround -q "<your query>" -t "<comma seperated values>"
+./goaround search "<your query>" -t "<comma seperated values>"
 ```
 
 ```bash
-./goaround -q "Python upper case a string" -t "python,python3"
+./goaround search "Python upper case a string" -t "python,python3"
 ```
 
 ### Using `goaround` as wrapper to run other programs (currently only supports go and python)
@@ -49,22 +49,21 @@ To get more accurate results you can pass the tags as comma separated values, re
 `goaround` can be used to capture the `Stderr` of other porgrams and query the stackoverflow API with the erorr generated and display the results.
 
 ```bash
-./goaround -p "<your command>"
+./goaround command "<your command>"
 ```
 
 ```bash
-./goaround -p "go run main.go"
+./goaround command "go run main.go"
 ```
 
 ```bash
-./goaround -p "python main.py"
+./goaround command "python main.py"
 ```
 
 Few things to note while using `goaround` as wrapper:
 
 - Stdout of the command will be displayed in the terminal in real time
 - Only the error pushed to `Stderr` will be used to query the stackoverflow API
-- In this mode tags provided via `-t` will be ignored and name of the executable in the command will be taken as tag
 
 ### Navigating through the results
 
